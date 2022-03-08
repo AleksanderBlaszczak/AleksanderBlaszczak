@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Tabela z filtrem i sortowaniem</title>
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap@4.5.3/dist/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@2.21.0/dist/bootstrap-vue.css"/>
+    <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+      <!-- Bootstrap działa standardowo z jQuery, ta wersja biblioteki integruje BS z VUE: -->
+    <script src="https://unpkg.com/bootstrap-vue@2.21.0/dist/bootstrap-vue.js"></script>
+  </head>
+
+  <body>
+    <h1>Tabela reaktywna VUE</h1>
+     
+    <div id="app">
+      <b-container>
+          
+        <template>
+            <div>
+              <b-button v-b-modal.modal-prevent-closing>Open Modal</b-button>
+          
+              <div class="mt-3">
+                Submitted Names:
+                <div v-if="submittedNames.length === 0">--</div>
+                <ul v-else class="mb-0 pl-3">
+                  <li v-for="name in submittedNames">{{ name }}</li>
+                </ul>
+              </div>
+          
+              <b-modal
+                id="modal-prevent-closing"
+                ref="modal"
+                title="Submit Your Name"
+                @show="resetModal"
+                @hidden="resetModal"
+                @ok="handleOk"
+              >
+                <form ref="form" @submit.stop.prevent="handleSubmit">
+                  <b-form-group
+                    label="Name"
+                    label-for="name-input"
+                    invalid-feedback="Name is required"
+                    :state="nameState"
+                  >
+                    <b-form-input
+                      id="name-input"
+                      v-model="name"
+                      :state="nameState"
+                      required
+                    ></b-form-input>
+                  </b-form-group>
+                </form>
+              </b-modal>
+            </div>
+          </template>
+          
+          <script>
+            export default {
+              data() {
+                return {
+                  name: '',
+                  nameState: null,
+                  submittedNames: []
+                }
+              },
+              methods: {
+                checkFormValidity() {
+                  const valid = this.$refs.form.checkValidity()
+                  this.nameState = valid
+                  return valid
+                },
+                resetModal() {
+                  this.name = ''
+                  this.nameState = null
+                },
+                handleOk(bvModalEvt) {
+                  // Prevent modal from closing
+                  bvModalEvt.preventDefault()
+                  // Trigger submit handler
+                  this.handleSubmit()
+                },
+                handleSubmit() {
+                  // Exit when the form isn't valid
+                  if (!this.checkFormValidity()) {
+                    return
+                  }
+                  // Push the name to submitted names
+                  this.submittedNames.push(this.name)
+                  // Hide the modal manually
+                  this.$nextTick(() => {
+                    this.$bvModal.hide('modal-prevent-closing')
+                  })
+                }
+              }
+            }
+          </script><!-- Kontener Bootstrap-->
+               </b-input-group>
+          </b-form-group>    
+             </b-table>
+          </template>
+       
+        </b-container>
+    </div>
+     
+    <script>        
+      window.app = new Vue({
+        el: "#app",
+        data: {
+          filter: '',
+          items: [ //tę tablicę trzeba wczytać z JSONa na serwerze zazwyczaj, my tu wpiszemy na sztywno:
+            { isActive: true, age: 40, first_name: 'Dickerson', last_name: 'Macdonald' },
+            { isActive: false, age: 21, first_name: 'Larsen', last_name: 'Shaw' },
+            { isActive: false, age: 89, first_name: 'Geneva', last_name: 'Wilson' },
+            { isActive: true, age: 38, first_name: 'Jami', last_name: 'Carney' }
+          ],
+          fields:
+            [
+             {
+                key: "isActive", //kolumna z JSON
+                sortable: false, //czy włączyć sortowanie dla tej kolumny
+                label: "Aktywny" //Nagłówek tabeli
+            },
+            {
+                key: "age",
+                sortable: true,
+                label: "Wiek"
+            },
+            {
+                key: "first_name",
+                sortable: true,
+                label: "Imię"
+            },
+                           {
+                key: "last_name",
+                sortable: true,
+                label: "Nazwisko"
+            }
+               
+            ]
+        },
+         
+         methods:
+           {
+                rowClickHandler: function(record, index) {
+                //zdarzenie kliknięcia w wiersz
+                        alert('wiersz:  ' + JSON.stringify(record) + '\nindex:' + index); // This will be the item data for the row
+                }
+         }
+       
+      });
+</script>
+  </body>
+</html>
